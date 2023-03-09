@@ -43,13 +43,16 @@ option(SIMD_ENABLED "Whether to enable SIMD optimizations" ON)
 option(OPENMP_ENABLED "Whether to enable OpenMP parallelization" ON)
 option(BUILD_TEST "Whether to enable test" OFF)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
 # ###############################################################################
 # Find packages
 # ###############################################################################
 # when use for add_subdirectory(), need external install Ceres and Eigen3
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-    find_package(Ceres REQUIRED)
-    find_package(Eigen3 REQUIRED)
+	include(FindCeres)
+	include(FindEigen3)
+	include(FindGLOG)
 endif()
 
 
@@ -64,24 +67,25 @@ else()
     set(IS_DEBUG OFF)
 endif()
 
-if(IS_MSVC)
+if(MSVC)
     # Some fixes for the Glog library.
     add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
     add_definitions("-DGL_GLEXT_PROTOTYPES")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 
     # Enable object level parallel builds in Visual Studio.
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
-if(IS_GNU)
+if(GNU)
     # Hide incorrect warnings for uninitialized Eigen variables under GCC.
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-maybe-uninitialized")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized")
 endif()
 
-if(IS_DEBUG)
+if(DEBUG)
     add_definitions("-DEIGEN_INITIALIZE_MATRICES_BY_NAN")
 endif()
 

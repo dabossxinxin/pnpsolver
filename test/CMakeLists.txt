@@ -29,6 +29,7 @@
 #
 # Author: Hailin Yu
 
+include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 add_executable(test_pnp test_pnp.cc)

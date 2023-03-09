@@ -40,10 +40,10 @@
 #include "interface/pnp_solver.h"
 
 int main(int argc, char** argv) {
-    int num_test = 1000;
+    //int num_test = 1000;
 
-    for (int i = 0; i != num_test; ++i) {
-		int num_correspondences = /*colmap::RandomInteger(0, 1000)*/888;
+    //for (int i = 0; i != num_test; ++i) {
+		int num_correspondences = colmap::RandomInteger(0, 1000);
         std::vector<Eigen::Vector2d> points2D(num_correspondences);
         std::vector<Eigen::Vector3d> points3D(num_correspondences);
         std::vector<double> priors(num_correspondences);
@@ -71,6 +71,6 @@ int main(int argc, char** argv) {
         } else {
             std::cout << "Failed" << std::endl;
         }
-    }
+    //}
     return 0;
 }

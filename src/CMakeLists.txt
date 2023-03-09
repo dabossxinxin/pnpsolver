@@ -29,28 +29,28 @@
 #
 # Author: Johannes L. Schoenberger (jsch-at-demuc-dot-de)
 
-if(IS_MSVC)
+if(MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
-elseif(IS_GNU OR IS_CLANG)
+elseif(GNU OR CLANG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 endif()
 
-option(BUILD_SHARED_LIBS "Build shared libraries" ON) # default use dynamic
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF) # default use dynamic
 
 set(LIBRARY_NAME pnpsolver)
 
+include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(${GFLAGS_INCLUDE_DIRS})
+include_directories(${GLOG_INCLUDE_DIRS})
+include_directories(${CERES_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 aux_source_directory(base base_src)
-
 aux_source_directory(interface interface_src)
-
 aux_source_directory(estimators estimators_src)
-
 aux_source_directory(optim optim_src)
-
 aux_source_directory(util util_src)
 
 add_library(${LIBRARY_NAME}
@@ -62,17 +62,12 @@ add_library(${LIBRARY_NAME}
 set_target_properties(${LIBRARY_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_library(PnpSolver::pnpsolver ALIAS ${LIBRARY_NAME})
 
-if(TARGET ceres)
-    target_link_libraries(${LIBRARY_NAME} PUBLIC ceres)
-else()
-    target_link_libraries(${LIBRARY_NAME} PUBLIC Ceres::ceres)
-endif()
-
-if(TARGET Eigen3::Eigen)
-    target_link_libraries(${LIBRARY_NAME} PUBLIC Eigen3::Eigen)
-else()
-    target_include_directories(${LIBRARY_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS})
-endif()
+target_link_libraries(${LIBRARY_NAME} debug ${GLOG_LIBRARIES} 	optimized ${GLOG_LIBRARIES})
+target_link_libraries(${LIBRARY_NAME} debug ${CERES_DEBUG_LIB} 	optimized ${CERES_RELEASE_LIB})
+foreach(_var ${GFLAGS_LIBRARIES})
+    target_link_libraries(${LIBRARY_NAME} debug ${GFLAGS_LIB_DIR}/${_var}_debug.lib
+	optimized ${GFLAGS_LIB_DIR}/${_var}.lib)
+endforeach()
 
 target_include_directories(${LIBRARY_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interface>
